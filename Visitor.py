@@ -1,5 +1,14 @@
 import plyj.model as model
 
+class LoopStart:
+    def __init__(self, loop_num):
+        self.loop_num = loop_num
+    def getLoopNum(self):
+        return self.loop_num
+
+class LoopEnd:
+    pass
+    
 
 class JMethodInvocation:
     #the classContainingInvocation is the location of the invocation -- NOT the declaration/definition of the invoked method.
@@ -45,7 +54,7 @@ class JordanVisitor(model.Visitor):
         #map variables and fields to their types
         self.variableTypes = dict()
         self.fieldTypes = dict()
-
+        self.loopDepth = 0
     
     def visit_ClassDeclaration(self, class_declaration):
         if class_declaration.name == self.className:
@@ -69,9 +78,21 @@ class JordanVisitor(model.Visitor):
             return False
     
 
+    def visit_For(self, for_loop):
+        self.methodInvocationList.append(LoopStart(self.loopDepth))
+        self.loopDepth += 1
+        #we want to iterate body of loop, but not start or ends.
+        for_loop.body.accept(self)
+        self.methodInvocationList.append(LoopEnd())
+        self.loopDepth -= 1
+        return False
 
+    def visit_While(self, while_loop):
+        self.visit_for(while_loop)
 
-
+    def visit_ForEach(self, foreach_loop):
+        self.visit_for(foreach_loop)
+    
     def visit_VariableDeclaration(self, variable_declaration):
         for vd in variable_declaration.variable_declarators:
             if type(variable_declaration.type) is str:

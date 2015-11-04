@@ -29,15 +29,20 @@ def diagram(javaFileName, outputFileName, className, methodName):
         print("Method was not found, or it does not contain any method invocations")
     else:
         with open(outputFileName, 'w') as f:
-            f.write('seqdiag { \n')
+            f.write('@startuml \n')
             for invocation in invocationList:
-                if invocation.getClass() == None:
-                    #self referential -- method invocation is member of class 
-                    f.write(className + ' -> ' + className + ' [label=\"' + invocation.getName() + '\"];\n')
+                if isinstance(invocation, LoopStart):
+                    f.write('loop \n')
+                elif isinstance(invocation, LoopEnd):
+                    f.write('end\n')
                 else:
-                    f.write(className + ' -> ' + invocation.getClass() + ' [label=\"' + invocation.getName() + '\"];\n')
-                    f.write(className + ' <- ' + invocation.getClass() + ';\n')
-            f.write('}')
+                    if invocation.getClass() == None:
+                        #self referential -- method invocation is member of class 
+                        f.write(className + ' -> ' + className + ' : ' + invocation.getName() + '\n')
+                    else:
+                        f.write(className + ' -> ' + invocation.getClass() + ' : ' + invocation.getName() + '\n')
+                        f.write(invocation.getClass() + ' -> ' + className + '\n')
+            f.write('@enduml')
 
 
                         
