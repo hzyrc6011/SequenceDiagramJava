@@ -57,6 +57,13 @@ class JordanVisitor(model.Visitor):
     def visit_MethodDeclaration(self, method_declaration):
         if method_declaration.name == self.methodName:
             print("Found the method: " + self.methodName)
+            for parameter in method_declaration.parameters:
+                if type(parameter.type) is str:
+                    #Seems to be for primitives
+                    self.variableTypes[parameter.variable.name] = parameter.type
+                else:
+                    #seems to be for objects
+                    self.variableTypes[parameter.variable.name] = parameter.type.name.value
             return True
         else:
             return False
