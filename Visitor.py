@@ -3,15 +3,18 @@ import plyj.model as model
 class JMethodInvocation:
     #the classContainingInvocation is the location of the invocation -- NOT the declaration/definition of the invoked method.
     def __init__(self, name, target, classContainingInvocation):
-        self.name = str(name)
+        if type(name) is not str:
+            name = name.value
+        if type(target) is not str and target is not None:
+            target = target.value
         if target == None:
             #then we called a method in our own class!
             self.jClass = None
-        elif str(target.value) == 'this' or str(target.value) == classContainingInvocation:
+        elif target == 'this' or target == classContainingInvocation:
             self.jClass = None
         else:
-            self.jClass = str(target.value)
-            
+            self.jClass = target
+        self.name = name
     def getName(self):
         return self.name
 
@@ -41,11 +44,6 @@ class JordanVisitor(model.Visitor):
         else:
             return False
     
-    def visit_VariableDeclaration(self, variable_declaration):
-        #our variable declarations
-        for declaration in variable_declaration.variable_declarators:
-            print(declaration.variable.name)
-
 
 
 
