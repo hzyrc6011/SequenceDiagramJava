@@ -1,3 +1,4 @@
+#!/usr/bin/python
 
 import plyj.parser as plyj
 from Visitor import *
