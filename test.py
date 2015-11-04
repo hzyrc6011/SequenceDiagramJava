@@ -1,8 +1,7 @@
+
 import plyj.parser as plyj
-
-parser = plyj.Parser()
-
-
+from Visitor import *
+import sys
 
 
 
@@ -16,28 +15,36 @@ class NoMethodExists(Exception):
         self.value = "No method name: " + methodName + " exists"
 
 
-def diagram(fileName, className, methodName):
-    tree = parser.parse_file(open(fileName))
+def diagram(javaFileName, outputFileName, className, methodName):
+    tree = parser.parse_file(open(javaFileName))
     foundClass = False
     foundMethod = False
     #go through the
-    for tDeclaration in tree.type_declarations:
-        if isinstance(tDeclaration, plyj.ClassDeclaration) and tDeclaration.name == className:
-            foundClass = True
-            for method in filter(lambda x: isinstance(x, plyj.MethodDeclaration), tDeclaration.body):
-                if method.name == methodName:
-                    foundMethod = True
-                    for line in method.body:
-                        #quickly check if there's a method invocation somewhere in this line.
-                        
-                        
-                                
-                        
-                            #then we invoked a method
-                        print('hi')
-                    return method.body[1]
+
+    invocationList = list()
+    tree.accept(JordanVisitor(className, methodName, invocationList))
+    #now we have our invocations lined up in the queue.
+    if len(invocationList) == 0:
+        print("Method was not found, or it does not contain any method invocations")
+    else:
+        with open(outputFileName, 'w') as f:
+            f.write('seqdiag { \n')
+            for invocation in invocationList:
+                if invocation.getClass() == None:
+                    #self referential -- method invocation is member of class 
+                    f.write(className + ' -> ' + className + ' [label=\"' + invocation.getName() + '\"];\n')
+                else:
+                    f.write(className + ' -> ' + invocation.getClass() + ' [label=\"' + invocation.getName() + '\"];\n')
+                    f.write(className + ' <- ' + invocation.getClass() + ';\n')
+            f.write('}')
 
 
-                    
-print(diagram('Stuff.java', 'Stuff', 'printThing'))
+                        
+
+
+if len(sys.argv) == 5:
+    parser = plyj.Parser()
+    diagram(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+else:
+    print("Usage: javaFileName, outputFileName, className, methodName")
 

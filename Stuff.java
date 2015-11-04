@@ -12,10 +12,10 @@ public class Stuff {
 	}
 	public void printThing(){
 		int num = this.getNum();
-		this.getSecondNum();
+		getSecondNum();
 		int doubled = OtherNum.doubleNum(num);
 		int x;
-		x = 0;
+
 
 		System.out.println("num: " + Integer.toString(doubled));
 	}
