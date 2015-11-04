@@ -1,5 +1,5 @@
 # SequenceDiagramJava
-We had to create static sequence diagrams from Java source code for my Software Engineering class. We were supposed to use ModelGonn for this. However, I found that when I tried to create the diagrams for methods in my project (OmegaT), it threw a Null Pointer Exception.
+We had to create static sequence diagrams from Java source code for my Software Engineering class. We were supposed to use ModelGonn for this. However, I found that when I tried to create the diagrams for methods in the project I'm working on (OmegaT), it threw a Null Pointer Exception.
 
 I tried this on three computers, on 2 different OSes (Arch Linux and Windows) and 2 different versions of Eclipse (Mars and Luna), and had the same issue. 
 
