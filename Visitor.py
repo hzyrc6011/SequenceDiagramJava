@@ -91,7 +91,7 @@ class JordanVisitor(model.Visitor):
         if isinstance(for_loop.update, list):
             for x in for_loop.update:
                 x.accept(self)
-        else:
+        elif for_loop.update != None:
             for_loop.update.accept(self)    
 
         self.ignoreMInvocations = False
