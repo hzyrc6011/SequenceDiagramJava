@@ -55,7 +55,7 @@ class JordanVisitor(model.Visitor):
         self.variableTypes = dict()
         self.fieldTypes = dict()
         self.loopDepth = 0
-    
+        self.ignoreMInvocations = False
     def visit_ClassDeclaration(self, class_declaration):
         if class_declaration.name == self.className:
             print("Found the class: " + self.className)
@@ -79,20 +79,69 @@ class JordanVisitor(model.Visitor):
     
 
     def visit_For(self, for_loop):
+        print("For loop: " + str(for_loop))
         self.methodInvocationList.append(LoopStart(self.loopDepth))
         self.loopDepth += 1
-        #we want to iterate body of loop, but not start or ends.
+        
+        
+        self.ignoreMInvocations = True
+        
+        for_loop.init.accept(self)
+        for_loop.predicate.accept(self)
+        if isinstance(for_loop.update, list):
+            for x in for_loop.update:
+                x.accept(self)
+        else:
+            for_loop.update.accept(self)    
+
+        self.ignoreMInvocations = False
         for_loop.body.accept(self)
         self.methodInvocationList.append(LoopEnd())
         self.loopDepth -= 1
         return False
 
     def visit_While(self, while_loop):
-        self.visit_for(while_loop)
+
+        self.methodInvocationList.append(LoopStart(self.loopDepth))
+        self.loopDepth += 1
+        #we want to iterate body of loop, but not start or ends.
+        
+        self.ignoreMInvocations = True
+        while_loop.predicate.accept(self)
+        self.ignoreMInvocations = False
+        while_loop.body.accept(self)
+        self.methodInvocationList.append(LoopEnd())
+        self.loopDepth -= 1
+        return False
+
 
     def visit_ForEach(self, foreach_loop):
-        self.visit_for(foreach_loop)
-    
+        self.methodInvocationList.append(LoopStart(self.loopDepth))
+        self.loopDepth += 1
+        #we want to iterate body of loop, but not start or ends.
+        self.ignoreMInvocations = True
+        foreach_loop.variable.accept(self)
+        self.ignoreMInvocations = False
+        foreach_loop.body.accept(self)
+        self.methodInvocationList.append(LoopEnd())
+        self.loopDepth -= 1
+        return False
+
+
+    def visit_DoWhile(self, dowhile_loop):
+
+        self.methodInvocationList.append(LoopStart(self.loopDepth))
+        self.loopDepth += 1
+        #we want to iterate body of loop, but not start or ends.
+        
+        self.ignoreMInvocations = True
+        dowhile_loop.predicate.accept(self)
+        self.ignoreMInvocations = False
+        dowhile_loop.body.accept(self)
+        self.methodInvocationList.append(LoopEnd())
+        self.loopDepth -= 1
+        return False
+        
     def visit_VariableDeclaration(self, variable_declaration):
         for vd in variable_declaration.variable_declarators:
             if type(variable_declaration.type) is str:
@@ -113,7 +162,8 @@ class JordanVisitor(model.Visitor):
 
 
     def leave_MethodInvocation(self, method_invocation):
-        print("Leaving method invocation: " + str(method_invocation))
-        self.methodInvocationList.append(JMethodInvocation(method_invocation.name, method_invocation.target, self.className, self.variableTypes, self.fieldTypes))
+        if self.ignoreMInvocations != True:
+            print("Leaving method invocation: " + str(method_invocation))
+            self.methodInvocationList.append(JMethodInvocation(method_invocation.name, method_invocation.target, self.className, self.variableTypes, self.fieldTypes))
         return True
         
