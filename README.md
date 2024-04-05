@@ -8,3 +8,10 @@ Additionally, I tried ModelGoon on some small code; the results were less than s
 Therefore, I am creating this script to create static sequence diagrams from Java source code.
 
 It depends on plyj [https://github.com/musiKk/plyj], and you need plantUML to turn the diagram output to an image.
+
+Command to run this project:
+
+```cmd
+pip install plyj
+python SequenceDiagram.py Stuff.java stuff.plantuml Stuff printThing
+```

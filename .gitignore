@@ -1,0 +1,5 @@
+/venv
+/*.plantuml
+/out
+__pycache__
+*.pyc
